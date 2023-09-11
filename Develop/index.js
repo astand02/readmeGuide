@@ -1,7 +1,7 @@
 // TODO: Include packages needed for this application
-const { validateHeaderName } = require("http");
+const fs = require("fs");
 const inquirer = require("inquirer");
-const { readMeFile } = require("fs").promises;
+const generateMarkdown = require("./utils/generateMarkdown.js");
 // TODO: Create an array of questions for user input
 const questions = () => {
   return inquirer.prompt([
@@ -33,7 +33,7 @@ const questions = () => {
   },
   {
     type: "input",
-    name: "installation",
+    name: "install",
     message: "What are the steps required to install your project?",
     validate: (instInput) => {
       if (instInput) {
@@ -73,12 +73,12 @@ const questions = () => {
   },
   {
     type : "confirm",
-    name: "contributors",
+    name: "contConfirm",
     message: "Is the user required to know anything about contributing to your project?"
   },
   {
     type: "input",
-    name: "contConfirm",
+    name: "contributing",
     message: "List guidelines on how to contribute to the project.",
     validate: (contConfirm) => {
       if (contConfirm) {
@@ -90,12 +90,12 @@ const questions = () => {
   },
   {
     type: "confirm",
-    name: "test",
+    name: "testConfirm",
     message: "Are there any tests to provide the user with?"
   },
   {
     type: "input",
-    name: "testConfirm",
+    name: "test",
     message: "Explain how users can test your project.",
     validate: (testConfirm) => {
       if(testConfirm){
@@ -131,26 +131,34 @@ const questions = () => {
       }
     }
   },
-  {
-    type: "input",
-    name: "questions",
-    message: "List instructions on how to contact you.",
-    validate: (qInput) => {
-      if(qInput) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-  },
 ]);
 };
 
 // TODO: Create a function to write README file
-function writeToFile(fileName, data) {}
+function writeToFile(fileName, data) {
+  fs.writeFile(fileName, data, error => {
+    if(error){
+      return console.log(error);
+    } else {
+      return console.log("Successfully created README.md file!")
+    }
+  });
+}
+
 
 // TODO: Create a function to initialize app
-function init() {}
+function init() {
+  return questions ()
+  .then((answers) => {
+    return generateMarkdown(answers);
+  })
+  .then((data) => {
+    return writeToFile('README.md',data);
+  })
+  .catch((error) => {
+    console.log(error);
+  })
+};
 
 // Function call to initialize app
 init();
